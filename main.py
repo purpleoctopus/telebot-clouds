@@ -1,16 +1,10 @@
 import telebot
 import json
 import requests
-
-f = open('bot_creds.txt')
-bot_token = f.readline()
+from datetime import datetime
 
 
-
-bot  = telebot.TeleBot("")
-
-bank_api = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&date=20221212&json"
-
+bot  = telebot.TeleBot("6144288937:AAFZKL_ok3j2lMtpe-CKE98uxNXgtxg4zGY") #тут в лапки вставити токен з BotFather
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "Привіт!")
@@ -20,15 +14,17 @@ def send_welcome(message):
 def send_welcome2(message):
     if message.text == "Привіт":
         bot.reply_to(message, "Привіт!")
-    if message.text == "EUR":
+    else:
+        try:
+            today = datetime.today().strftime('%Y%m%d')
+            bank_api = f"https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode={message.text}&date={today}&json"
+            r = requests.get(url = bank_api)
+            data = r.json()
+            value = data[0]["rate"]
+            bot.reply_to(message, f"Привіт, курс {message.text} на сьогодні: {value}")
+        except:
+            bot.reply_to(message, "Помилка, таку валюту не знайдено")
 
-        r = requests.get(url = bank_api)
-        data = r.json()
-        value = data[0]["rate"]
-
-
-
-        bot.reply_to(message, f"Привіт, курс Євро на сьогодні: {value}")
 
 
 
